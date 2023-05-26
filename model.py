@@ -88,8 +88,10 @@ class SolarModel(pl.LightningModule):
     def shared_epoch_end(self, stage):
       
         if len(self.epoch_outputs) == 0:
+          print("Yeees")
           return
-        outputs = self.epoch_outputs
+        # outputs = self.epoch_outputs
+        outputs = self.epoch_outputs.copy()  # Make a copy of epoch_outputs
         tp = torch.cat([x["tp"] for x in outputs])
         fp = torch.cat([x["fp"] for x in outputs])
         fn = torch.cat([x["fn"] for x in outputs])
@@ -123,7 +125,9 @@ class SolarModel(pl.LightningModule):
             f"{stage}_balanced_accuracy":balanced_accuracy,
         }
         metrics = {k:round(float(v.cpu().data.numpy()), 2) for k,v in metrics.items()}
-        pprint(metrics)
+        # pprint(metrics)
+        # self.log('train_loss', average_loss, prog_bar=True)
+        self.log_dict(metrics, prog_bar=True)
 
         self.epoch_outputs.clear()
         return metrics
@@ -131,15 +135,13 @@ class SolarModel(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         outs = self.shared_step(batch, "train")            
         self.epoch_outputs.append(outs)
+        results = self.shared_epoch_end("train")
+        self.train_results[len(self.train_results)] = results
+        # print(len(self.epoch_outputs))
         return outs
 
-    def on_train_epoch_end(self):
-        results = self.shared_epoch_end("train")
-        self.train_results[self.current_epoch] = results
-        return results
-
     def validation_step(self, batch, batch_idx):
-        outs =  self.shared_step(batch, "valid")
+        outs = self.shared_step(batch, "valid")
         self.epoch_outputs.append(outs)
         return outs
 
