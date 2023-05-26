@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-def visualize(results):
+def visualize(results, step, net):
   epochs = list(results.keys())
 
   num_metrics = len(results[1])
@@ -22,5 +22,34 @@ def visualize(results):
       axs[-1].axis('off')
 
   plt.tight_layout()
-
+  plt.savefig(os.path.join(step, net))
   plt.show()
+
+
+import math
+
+def aggregate_dict(dictionary, group_size):
+    result = {}
+    keys = list(dictionary.keys())
+    num_groups = math.ceil(len(keys) / group_size)
+
+    for i in range(num_groups):
+        start_index = i * group_size
+        end_index = start_index + group_size
+        group_keys = keys[start_index:end_index]
+        group_values = [dictionary[key] for key in group_keys]
+        aggregated_value = aggregate_values(group_values)
+        result[i + 1] = aggregated_value
+
+    return result
+
+
+def aggregate_values(values):
+    aggregated_value = {}
+    for value in values:
+        for key, sub_value in value.items():
+            if key not in aggregated_value:
+                aggregated_value[key] = 0
+            aggregated_value[key] += sub_value
+    return {key: value / len(values) for key, value in aggregated_value.items()}
+
