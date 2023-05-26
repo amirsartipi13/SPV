@@ -1,3 +1,4 @@
+import os
 import matplotlib.pyplot as plt
 
 def visualize(results, step, net):
@@ -22,7 +23,7 @@ def visualize(results, step, net):
       axs[-1].axis('off')
 
   plt.tight_layout()
-  plt.savefig(f"{step}-{net}")
+  plt.savefig(os.path.join(net, f"{step}-{net}"))
   plt.show()
 
 
