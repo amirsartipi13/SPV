@@ -22,7 +22,7 @@ def visualize(results, step, net):
       axs[-1].axis('off')
 
   plt.tight_layout()
-  plt.savefig(os.path.join(step, net))
+  plt.savefig(f"{step}-{net}")
   plt.show()
 
 
